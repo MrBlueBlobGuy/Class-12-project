@@ -1,10 +1,10 @@
 import mysql.connector
 import mysql.connector.errorcode as MYSQL_errorcodes
 
-from mysql.connector import Error as MYSQL_ERROR
 import random
 
 from dotenv import load_dotenv
+from mysql.connector import Error as MYSQL_ERROR
 
 import os
 import hashlib
@@ -24,7 +24,6 @@ except MYSQL_ERROR as err:
         cursor = userdb.cursor()
         cursor.execute('CREATE DATABASE users')
         print('database created')
-        print('created table')
     
     else:
         print(f'{err} occoured')
@@ -46,7 +45,7 @@ class Student:
         self.email = email
         self.DOB = DOB
 
-        user = search_user(email=self.email)
+        user = search_user_with_email(email=self.email)
         if user[0] == False:
             if (input("student does not exist do you want to make new student? y/n: ").lower() == 'y'):
                 add_user(username = self.username, 
@@ -57,7 +56,7 @@ class Student:
                          email = self.email, 
                          DOB = self.DOB)
                 
-                self.id = search_user(self.email)[1]
+                self.id = search_user_with_email(self.email)[1]
             else:
                 return
         else:
@@ -85,7 +84,7 @@ def add_user(username:str, passwhash:str, board:str, target:str, userclass:int, 
             print(err)
 
     
-def search_user(email):
+def search_user_with_email(email):
     count = 0
     cursor.execute("SELECT id from users WHERE email = %s", (email,))
     searchresult = cursor.fetchall()
@@ -97,6 +96,19 @@ def search_user(email):
     else:
         return (False, [])
 
+def delete_user(email):
+    cursor.execute("DELETE FROM `users` WHERE (email=%s)", (email,))
+    userdb.commit()
+
+def fetch_user_data(email):
+    cursor.execute("SELECT * from users where (email = %s)", (email, ))
+    students = cursor.fetchall()
+    print(students)
+
 if __name__ == "__main__":
     Student('MrBlue', '1234', 'CBSE', 'JEE', 12, 'debojyotiganguly70@gmail.com','24/01/2006')
+    fetch_user_data('debojyotiganguly70@gmail.com')
+
+    if(input("test_delete: ").lower() == "y"):
+        delete_user('debojyotiganguly70@gmail.com')
     close_conn()
