@@ -1,0 +1,5 @@
+venv/
+.env
+.editorconfig
+setup.ps1
+__pycache__/
